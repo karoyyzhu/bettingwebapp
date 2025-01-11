@@ -20,18 +20,7 @@ app.listen(3000, () => {
 });
 
 app.get('/', function(req, res){
-  const test_b =   {
-      'balance': 200000,
-      'bet_val': -1,
-      'user_roll':-1,
-      'dealer_roll':-1,
-      'num_wins': 0,
-      'win': false,
-      'alert': "DEFAULT"
-    };
-  res.render('home', test_b);
-
-  // res.render('home', fh.get_latest_bet());
+  res.render('home', fh.get_latest_bet());
 });
 
 app.post('/submit-bet', (req, res) => {

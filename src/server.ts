@@ -1,15 +1,18 @@
-const path = require('path');
-const ejs = require('ejs');
-const bodyParser = require('body-parser');
-const fs = require('fs');
-const express = require('express');
-const gm = require('./utils/gambling_mechanics');
+import express from 'express';
+import * as path from 'path';
+import * as ejs from 'ejs';
+import * as bodyParser from 'body-parser';
+import * as fs from 'fs';
 
-var app = express();
+import * as gm from './utils/game_mechanics';
+import * as fh from './utils/file_handling';
+
+const app : express.Express = express();
 
 app.set('view engine', 'ejs');
 
 app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('*', function(req, res){
@@ -26,3 +29,9 @@ app.post('/submit-bet', (req, res) => {
 
   var bet_result = gm.process_bet(bet_amount, user_dice);
 });
+
+app.post('/withdraw', (req, res) => {
+  if(fh.has_won()) fh.reset_game();
+  else {
+  }
+})

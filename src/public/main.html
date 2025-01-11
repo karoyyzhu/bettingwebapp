@@ -1,18 +1,21 @@
 <html>
 <body>
-  <p>
-    Balance: balance
+  <p id="balance">
+    Balance:
   </p>
+  <button id = 'test' type="button">Click here</button>
 
   <form action="/submit-bet" method="POST">
     <label for="amount">Bet Amount:</label><br>
     <input type="text" id="amount" name="amount"><br>
     <label for="dicenum">Dice Number</label><br>
     <input type="text" id="dicenum" name="dicenum"><br>
-    <input type="button" id="withdraw" name="withdraw" value="Withdraw"><br>
+    <input type="button" id="withdraw" name="withdraw" value="Withdraw" action='/withdraw' method='POST'><br>
     <input type="button" id="history" name="history" value="History"><br>
     <input type="submit" id="submit" name="submit">
   </form>
 </body>
+<script type="text/javascript" src="client.js">
+</script>
 
 </html>

@@ -6,7 +6,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx tsc",
     "start": "node dist/server.js",
-    "dev": "nodemon src/server.ts"
+    "dev": "nodemon src/server.ts",
+    "lint:ejs": "ejslint /views/*.ejs"
   },
   "author": "",
   "license": "ISC",
@@ -14,6 +15,7 @@
   "dependencies": {
     "body-parser": "^1.20.3",
     "ejs": "^3.1.10",
+    "ejs-lint": "^2.0.1",
     "express": "^4.21.2",
     "nodemon": "^3.1.9",
     "typescript": "^5.7.3"

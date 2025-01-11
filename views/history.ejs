@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <% data.forEach((log) => {
+    if (log.alert != "DEFAULT") { %>
+    <p>Balance: <%=log.balance%></p>
+    <p>Bet Amount: <%=log.bet_val%></p>
+    <p>Your guess: <%=log.user_roll%></p>
+    <p>Dealer's roll: <%=log.dealer_roll%></p>
+    <p>Win? <%=log.win ? "Yes" : "No"%></p>
+    <hr>
+  <% }
+}
+) %>
+
+  <a href="/"><button>Back</button></a>
+
+</body>
+</html>

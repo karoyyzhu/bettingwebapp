@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <% switch (alert) {
+    case "WIN": %>
+    <p>Dealer rolled a <%=dealer_roll%>. You rolled a <%=user_roll%>. You win!</p>
+  <% break;
+    case "LOSE": %>
+    <p>Dealer rolled a <%=dealer_roll%>. You rolled a <%=user_roll%>. You lose!</p>
+  <% break;
+    case "WITHDRAW_FAIL": %>
+    <p>You cannot withdraw! You have not won a game yet.</p>
+  <% break;
+    default:
+  } %>
+
+
+  <p>Balance: <a id="bal_val"><%=balance%></a></p>
+
+  <form action="/submit-bet" method="POST">
+    <label for="amount">Bet Amount:</label><br>
+    <input type="text" id="amount" name="amount"><br>
+    <label for="user_dice">Dice Number</label><br>
+    <input type="text" id="user_dice" name="user_dice"><br>
+    <a href="/withdraw"><input type="button" id="withdraw" name="withdraw" value="Withdraw"></a><br>
+    <a href="/history"><input type="button" id="history" name="history" value="History"></a><br>
+    <input type="submit" id="submit" name="submit">
+  </form>
+
+</body>
+<script type="text/javascript">
+
+</script>
+
+</html>

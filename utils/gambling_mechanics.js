@@ -9,5 +9,5 @@ export function process_bet(bet_val, user_dice) {
     bet_hold += bet_val * multiplier;
   }
 
-  write_bet_to_file(bet_hold);
+  write_bet_to_file(bet_hold, bet_val, user_dice);
 }

@@ -19,12 +19,12 @@
 
   <form action="/submit-bet" method="POST">
     <label for="amount">Bet Amount:</label><br>
-    <input type="text" id="amount" name="amount"><br>
-    <label for="user_dice">Dice Number</label><br>
-    <input type="text" id="user_dice" name="user_dice"><br>
+    <input type="text" id="amount" name="amount" required><br>
+    <label for="user_dice">Dice Number (between 1 and 6)</label><br>
+    <input type="text" id="user_dice" name="user_dice" required><br>
     <a href="/withdraw"><input type="button" id="withdraw" name="withdraw" value="Withdraw"></a><br>
     <a href="/history"><input type="button" id="history" name="history" value="History"></a><br>
-    <input type="submit" id="submit" name="submit">
+    <input type="submit" id="submit" name="submit" value="Submit">
   </form>
 
 </body>

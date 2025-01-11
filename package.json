@@ -1,15 +1,14 @@
 {
-  "name": "testjs",
+  "name": "gamblingcasino",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx tsc",
-    "start": "node dist/server.js",
     "dev": "nodemon src/server.ts",
     "lint:ejs": "ejslint /views/*.ejs"
   },
-  "author": "",
+  "author": "Karo Zhu",
   "license": "ISC",
   "description": "",
   "dependencies": {

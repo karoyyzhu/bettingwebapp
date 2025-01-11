@@ -15,7 +15,10 @@ export function process_bet(balance_delta: number, bet_val: number, user_roll: n
     reset_game();
     return default_bet_data;
   } else {
+    //if change in balance is positive, user won. negative, user lost.
     const win_val : boolean = balance_delta > 0;
+    //num_wins could also function as a boolean
+    //but this may have other functionality in the future, like for high schores
     num_wins = win_val ? num_wins + 1 : num_wins;
     const alert = win_val ? "WIN" : "LOSE";
     const new_bet_data : BetData = {
@@ -33,6 +36,7 @@ export function process_bet(balance_delta: number, bet_val: number, user_roll: n
   }
 }
 
+//add new bet to history, each new bet added to the beginning of the json file
 function log_to_history(new_bet: BetData): void {
   const bet_list: BetData[] = [new_bet];
   let in_list = JSON.parse(fs.readFileSync(session_data_filename, 'utf-8'));
@@ -54,6 +58,7 @@ export function get_history(): BetData[] {
   }
 }
 
+//boolean to check if user has won before
 export function has_won_before() : boolean {
   if(!fs.existsSync(session_data_filename)) {
     return false;
@@ -61,6 +66,7 @@ export function has_won_before() : boolean {
   return get_latest_bet()['num_wins'] > 0;
 }
 
+//reset changes all values back to defaults, and clears history.
 export function reset_game() : void {
   const empty_list: string = "[]";
   fs.writeFileSync(session_data_filename, empty_list);

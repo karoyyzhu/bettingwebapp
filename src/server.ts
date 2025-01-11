@@ -24,11 +24,7 @@ app.get('/', function(req, res){
 });
 
 app.post('/submit-bet', (req, res) => {
-  const bet_amount : number = req.body.amount;
-  const user_dice : number = req.body.user_dice;
-
-  const bet_data : types_c.BetData = gm.place_bet(bet_amount, user_dice);
-
+  const bet_data : types_c.BetData = gm.place_bet(req.body.amount, req.body.user_dice);
   res.render('home', bet_data);
 });
 

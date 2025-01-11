@@ -1,8 +1,9 @@
 const path = require('path');
-const express = require('express');
 const ejs = require('ejs');
 const bodyParser = require('body-parser');
-const fs = require('fs')
+const fs = require('fs');
+const express = require('express');
+const gm = require('./utils/gambling_mechanics');
 
 var app = express();
 
@@ -20,19 +21,8 @@ app.listen(3000, () => {
 });
 
 app.post('/submit-bet', (req, res) => {
-  var bet_obj = {
-    bet_amount: req.body.amount,
-    dice_number: req.body.dicenum
-  };
+  var bet_amount = req.body.amount;
+  var user_dice = req.body.dicenum;
 
-  var json = JSON.stringify(bet_obj);
-  fs.writeFile('bet_data.json', json, 'utf-8',
-    (err) => {
-      if (err) console.log(err);
-      else {
-        console.log("Successful file write\n");
-        console.log("Contents of file:");
-        console.log(fs.readFileSync("bet_data.json", "utf8"));
-      }
-    });
-})
+  var bet_result = gm.process_bet(bet_amount, user_dice);
+});

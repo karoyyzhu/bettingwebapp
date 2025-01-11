@@ -29,6 +29,39 @@
 
 </body>
 <script type="text/javascript">
+if (parseInt(document.getElementById('bal_val').innerHTML) >= 20000) {
+  let btn = document.getElementById('withdraw');
+  btn.style.position = "absolute";
+    btn.addEventListener("mouseenter", (e) => {
+      if (!btn.style.left || !btn.style.top) {
+          btn.style.left = "0px";
+          btn.style.top = "0px";
+      } else {
+          var posLeft = parseInt(btn.style.left); // parseInt ignores the px on the end
+          var posTop = parseInt(btn.style.top);
+
+          let deltaLeft = Math.floor(Math.random() * 500) + 200;
+          let deltaTop = Math.floor(Math.random() * 300) + 100;
+          const negLeft = Math.round(Math.random()) == 0;
+          const negTop = Math.round(Math.random()) == 0;
+
+          deltaLeft = negLeft ? -1 * deltaLeft : deltaLeft;
+          deltaTop = negTop ? -1 * deltaTop : deltaTop;
+          let newLeft = Math.max(0, posLeft + deltaLeft);
+          let newTop = Math.max(0, posTop + deltaTop);
+
+          if(!negLeft) {
+            newLeft = Math.min(window.innerWidth, posLeft + deltaLeft);
+          }
+          if(!negTop) {
+            newTop = Math.min(window.innerHeight, posTop + deltaTop);
+          }
+
+          btn.style.left = newLeft + "px";
+          btn.style.top = newTop + "px";
+      }
+    });
+}
 
 </script>
 

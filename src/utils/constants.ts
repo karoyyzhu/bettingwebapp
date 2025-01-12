@@ -14,5 +14,7 @@ export const default_bet_data : BetData =
     'dealer_roll':-1,
     'num_wins': 0,
     'win': false,
-    'alert': "DEFAULT"
+    'alert': "DEFAULT",
+    'timestamp': new Date().getTime(),
+    'user_id': "default"
   }

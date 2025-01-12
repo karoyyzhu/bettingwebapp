@@ -5,5 +5,7 @@ export type BetData = {
   "dealer_roll": number,
   "num_wins": number,
   "win": boolean,
-  "alert": string
+  "alert": string,
+  "timestamp": number,
+  "user_id": string
 }

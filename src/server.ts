@@ -3,13 +3,20 @@ import * as path from 'path';
 import * as ejs from 'ejs';
 import * as bodyParser from 'body-parser';
 import * as fs from 'fs';
+import * as sequelize from 'sequelize'
 
 import * as gm from './utils/game_mechanics';
 import * as fh from './utils/file_handler';
-import * as types_c from './utils/types';
+import { BetData } from './utils/types';
+import { Bet, run_database } from './utils/database_handler';
 import * as constants from './utils/constants';
 
+export const user_id = "user" + Math.floor(Math.random() * 100);
+
 const app : express.Express = express();
+
+//run_database();
+let db_t: string = 'json';
 
 app.set('view engine', 'ejs');
 
@@ -20,26 +27,26 @@ app.listen(3000, () => {
 });
 
 app.get('/', function(req, res){
-  res.render('home', fh.get_latest_bet());
+  res.render('home', fh.get_latest_bet(db_t));
 });
 
 app.post('/submit-bet', (req, res) => {
-  const bet_data : types_c.BetData = gm.place_bet(req.body.amount, req.body.user_dice);
+  const bet_data : BetData = gm.place_bet(req.body.amount, req.body.user_dice);
   res.render('home', bet_data);
 });
 
 app.get('/withdraw', (req, res) => {
-  if(fh.has_won_before()) {
-    fh.reset_game();
+  if(fh.has_won_before(db_t)) {
+    fh.reset_game(db_t);
     res.render('home', constants.default_bet_data)
   }
   else {
-    let data = fh.get_latest_bet();
+    let data = fh.get_latest_bet(db_t);
     data['alert'] = "WITHDRAW_FAIL"
     res.render('home', data);
   }
 });
 
-app.get('/history', (req, res) => {
-  res.render('history', {'data': fh.get_history()});
+app.get('/history', async (req, res) => {
+  res.render('history', {'data': fh.get_history(db_t)});
 })

@@ -8,7 +8,7 @@ import { write_to_db, get_latest_bet_db, get_history_db, reset_game_db } from '.
 
 //balance_delta represents value to add to balance
 export async function process_bet(balance_delta: number, bet_val: number, user_roll: number, dealer_roll: number, db?: string) {
-  const latest_bet = await get_latest_bet(db);
+  let latest_bet = await get_latest_bet(db);
   const new_balance : number = latest_bet['balance'] + balance_delta;
   let num_wins : number = latest_bet['num_wins'];
 
@@ -18,7 +18,7 @@ export async function process_bet(balance_delta: number, bet_val: number, user_r
 
     reset_game(db);
     return default_bet_data;
-  } else {
+  } else { // creates bet object to save to DB
     //if change in balance is positive, user won. negative, user lost.
     const win_val : boolean = balance_delta > 0;
     num_wins = win_val ? num_wins + 1 : num_wins;
@@ -31,11 +31,11 @@ export async function process_bet(balance_delta: number, bet_val: number, user_r
       "num_wins": num_wins,
       "win": win_val,
       "alert": alert,
-      "timestamp": Date.now(),
+      "timestamp": new Date(),
       "user_id": user_id
     }
 
-    log_to_history(new_bet_data, db);
+    log_to_history(new_bet_data, db); // write to database
     return new_bet_data;
   }
 }
@@ -47,7 +47,7 @@ function log_to_history(new_bet: BetData, db?: string) {
   } else {
     const bet_list: BetData[] = [new_bet];
     let in_list = JSON.parse(fs.readFileSync(session_data_filename, 'utf-8'));
-    in_list.unshift(new_bet);
+    in_list.unshift(new_bet); //adds new history to beginning of file to make access of most recent bet easier
     fs.writeFileSync(session_data_filename, JSON.stringify(in_list));
   }
 }
@@ -55,9 +55,7 @@ function log_to_history(new_bet: BetData, db?: string) {
 export async function get_latest_bet(db?: string) {
   if(db == 'db') {
     const latest_bet = await get_latest_bet_db();
-    console.log("\n\n");
-    console.log(latest_bet);
-    if(latest_bet != null && latest_bet.length == 0) {
+    if(latest_bet == null || latest_bet.length == 0) {
       return default_bet_data;
     }
     return latest_bet;
@@ -84,10 +82,8 @@ export async function get_history(db?:string) {
 //boolean to check if user has won before
 export async function has_won_before(db?: string) {
   if(db == 'db') {
-    const force_cast_bet = ((get_latest_bet_db() as unknown) as BetData);
-    if(force_cast_bet != null) {
-      return force_cast_bet['num_wins'] > 0;
-    }
+    const check_wins = await get_latest_bet_db();
+    return check_wins['num_wins'] > 0;
   } else {
     if(fs.existsSync(session_data_filename)) {
       const num_wins = await get_latest_bet(db)

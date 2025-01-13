@@ -51,7 +51,8 @@ exports.reset_game_db = reset_game_db;
 const sequelize = __importStar(require("sequelize"));
 const server_1 = require("../server");
 const constants_1 = require("./constants");
-const sqlz = new sequelize.Sequelize('postgres://[username]:[password]@localhost:5342/bets');
+//replace with username and password
+const sqlz = new sequelize.Sequelize('postgres://[username]:[password]@localhost:5432/postgres');
 exports.Bet = sqlz.define('bet', {
     "balance": { type: sequelize.DataTypes.INTEGER },
     "bet_val": { type: sequelize.DataTypes.INTEGER },
@@ -66,52 +67,68 @@ exports.Bet = sqlz.define('bet', {
 function run_database() {
     return __awaiter(this, void 0, void 0, function* () {
         sqlz.authenticate().then(() => {
-            console.log("Successful connect to sql");
+            console.log("Successful connect to database");
         }).catch((err) => {
-            if (err)
-                console.error(err, "Failed to connect");
+            console.error("Failed to connect to database; ", err);
         });
+        //drops any existing information and conforms to Bet model
         exports.Bet.sync({ force: true });
     });
 }
 function write_to_db(data) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield exports.Bet.create(data);
+        console.log(data);
+        try {
+            yield exports.Bet.create(data);
+        }
+        catch (err) {
+            console.log('Failed to write to database; ', err);
+        }
     });
 }
 function get_history_db() {
     return __awaiter(this, void 0, void 0, function* () {
-        let history = [];
         try {
-            history = yield exports.Bet.findAll({
+            const history = yield exports.Bet.findAll({
                 where: {
-                    id: server_1.user_id
+                    user_id: server_1.user_id
                 }
             });
+            return history;
         }
         catch (err) {
-            console.error("Failed to retrieve database; ", err);
+            console.error("Failed to retrieve history; ", err);
         }
-        return history;
     });
 }
+//gets most recent bet logged to DB
 function get_latest_bet_db() {
     return __awaiter(this, void 0, void 0, function* () {
-        const latest_bet = yield sqlz.query(`SELECT * FROM bet
-    WHERE user_id=${server_1.user_id}
-    ORDER BY timestamp DESC
-    LIMIT 1;
-    `, {
-            mapToModel: true,
-            model: exports.Bet
-        });
-        //get first item from results list (first argument of value returned from query)
-        return latest_bet;
+        try {
+            const payload = yield exports.Bet.findAll({
+                where: {
+                    user_id: server_1.user_id,
+                },
+                order: [["timestamp", "DESC"]],
+                limit: 1,
+                raw: true
+            });
+            return payload[0]; // query returns as a list of one item, this gets the object
+        }
+        catch (err) {
+            console.error("Failed to retrieve value; ", err);
+        }
     });
 }
+//resets db by erasing all of user's previous history, writing default value in
 function reset_game_db() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield exports.Bet.destroy({ where: { user_id: server_1.user_id } });
-        write_to_db(constants_1.default_bet_data);
+        try {
+            yield exports.Bet.destroy({ where: { user_id: server_1.user_id } });
+            write_to_db(constants_1.default_bet_data);
+        }
+        catch (err) {
+            console.error("Failed to reset database, deleting user history; ", err);
+        }
     });
 }

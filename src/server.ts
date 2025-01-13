@@ -15,6 +15,8 @@ export const user_id = "user" + Math.floor(Math.random() * 100);
 const app : express.Express = express();
 
 run_database();
+//option to use either a database or local json file for saved information
+//I initially misread the prompt and used this to change functionality to a db layer
 let db_t: string = 'db';
 
 app.set('view engine', 'ejs');
@@ -27,7 +29,9 @@ app.listen(3000, () => {
 
 app.get('/', async (req, res) => {
   let latest_val = await fh.get_latest_bet(db_t);
-  latest_val['balance'] = 200000;
+  if(latest_val == null) { // makes sure that site does not crash if missing data
+    latest_val = constants.default_bet_data;
+  }
   res.render('home', latest_val);
 });
 

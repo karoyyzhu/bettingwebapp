@@ -5,6 +5,7 @@ import { BetData } from './types';
 export async function place_bet(bet_val: number, user_roll: number, db?: string) {
   const get_balance_response = await get_latest_bet(db);
   const balance = get_balance_response['balance'];
+
   let dealer_roll : number = roll_dice(dice_max);
 
   //bets can be represented as the user paying their initial bet, which remains

@@ -6,6 +6,6 @@ export type BetData = {
   "num_wins": number,
   "win": boolean,
   "alert": string,
-  "timestamp": number,
+  "timestamp": Date,
   "user_id": string
 }

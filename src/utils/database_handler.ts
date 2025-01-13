@@ -1,9 +1,11 @@
 import * as sequelize from 'sequelize';
+
 import { user_id } from '../server';
 import { default_bet_data } from './constants';
 import { BetData } from './types';
 
-const sqlz = new sequelize.Sequelize('postgres://karozhu:@localhost:5432/postgres');
+//replace with username and password
+const sqlz = new sequelize.Sequelize('postgres://[username]:[password]@localhost:5432/postgres');
 
 export const Bet = sqlz.define('bet', {
   "balance" : {type: sequelize.DataTypes.INTEGER},
@@ -19,16 +21,22 @@ export const Bet = sqlz.define('bet', {
 
 export async function run_database() {
   sqlz.authenticate().then(() => {
-    console.log("Successful connect to sql");
+    console.log("Successful connect to database");
   }).catch((err) => {
-    if(err) console.error(err, "Failed to connect");
+    console.error("Failed to connect to database; ", err);
   })
 
+  //drops any existing information and conforms to Bet model
   Bet.sync({force:true});
 }
 
 export async function write_to_db(data: BetData) {
-  await Bet.create(data);
+  console.log(data);
+  try {
+    await Bet.create(data);
+  } catch (err) {
+    console.log('Failed to write to database; ', err);
+  }
 }
 
 export async function get_history_db() {
@@ -40,26 +48,33 @@ export async function get_history_db() {
     });
     return history;
   } catch (err) {
-    console.error("Failed to retrieve database; ", err);
+    console.error("Failed to retrieve history; ", err);
   }
 }
 
+//gets most recent bet logged to DB
 export async function get_latest_bet_db() {
   try {
-    const history = await Bet.findAll({
+    const payload: any = await Bet.findAll({
       where: {
         user_id: user_id,
       },
       order: [["timestamp", "DESC"]],
-      limit: 1
+      limit: 1,
+      raw: true
     });
-    return history
+    return payload[0]; // query returns as a list of one item, this gets the object
   } catch (err) {
-    console.error("Failed to retrieve database; ", err);
+    console.error("Failed to retrieve value; ", err);
   }
 }
 
+//resets db by erasing all of user's previous history, writing default value in
 export async function reset_game_db() {
-  await Bet.destroy({where: {user_id: user_id}});
-  write_to_db(default_bet_data);
+  try {
+    await Bet.destroy({where: {user_id: user_id}});
+    write_to_db(default_bet_data);
+  } catch (err) {
+    console.error("Failed to reset database, deleting user history; ", err);
+  }
 }

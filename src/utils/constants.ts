@@ -15,6 +15,6 @@ export const default_bet_data : BetData =
     'num_wins': 0,
     'win': false,
     'alert': "DEFAULT",
-    'timestamp': new Date().getTime(),
+    'timestamp': new Date("1995-12-17T03:24:00"), // arbitrary date in the past
     'user_id': "default"
   }

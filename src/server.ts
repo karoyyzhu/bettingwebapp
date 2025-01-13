@@ -12,11 +12,10 @@ import { Bet, run_database } from './utils/database_handler';
 import * as constants from './utils/constants';
 
 export const user_id = "user" + Math.floor(Math.random() * 100);
-
 const app : express.Express = express();
 
-//run_database();
-let db_t: string = 'json';
+run_database();
+let db_t: string = 'db';
 
 app.set('view engine', 'ejs');
 
@@ -26,27 +25,31 @@ app.listen(3000, () => {
   console.log('Server started on port 3000');
 });
 
-app.get('/', function(req, res){
-  res.render('home', fh.get_latest_bet(db_t));
+app.get('/', async (req, res) => {
+  let latest_val = await fh.get_latest_bet(db_t);
+  latest_val['balance'] = 200000;
+  res.render('home', latest_val);
 });
 
-app.post('/submit-bet', (req, res) => {
-  const bet_data : BetData = gm.place_bet(req.body.amount, req.body.user_dice);
+app.post('/submit-bet', async (req, res) => {
+  const bet_data = await gm.place_bet(req.body.amount, req.body.user_dice, db_t);
   res.render('home', bet_data);
 });
 
-app.get('/withdraw', (req, res) => {
-  if(fh.has_won_before(db_t)) {
+app.get('/withdraw', async (req, res) => {
+  const has_won_before = await fh.has_won_before(db_t);
+  if(has_won_before) {
     fh.reset_game(db_t);
     res.render('home', constants.default_bet_data)
   }
   else {
-    let data = fh.get_latest_bet(db_t);
+    let data = await fh.get_latest_bet(db_t);
     data['alert'] = "WITHDRAW_FAIL"
     res.render('home', data);
   }
 });
 
 app.get('/history', async (req, res) => {
-  res.render('history', {'data': fh.get_history(db_t)});
+  const hist = await fh.get_history(db_t);
+  res.render('history', {'data': hist});
 })

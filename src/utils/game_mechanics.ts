@@ -2,8 +2,9 @@ import { dice_max, multiplier } from './constants';
 import { process_bet, has_won_before, reset_game, get_latest_bet } from './file_handler';
 import { BetData } from './types';
 
-export function place_bet(bet_val: number, user_roll: number) : BetData {
-  const balance = get_latest_bet()['balance'];
+export async function place_bet(bet_val: number, user_roll: number, db?: string) {
+  const get_balance_response = await get_latest_bet(db);
+  const balance = get_balance_response['balance'];
   let dealer_roll : number = roll_dice(dice_max);
 
   //bets can be represented as the user paying their initial bet, which remains
@@ -31,14 +32,7 @@ export function place_bet(bet_val: number, user_roll: number) : BetData {
     bet_hold += bet_val * (multiplier + 1);
   }
 
-  return process_bet(bet_hold, bet_val, user_roll, dealer_roll);
-}
-
-export function withdraw() : boolean {
-  const can_withdraw : boolean = has_won_before()
-  if(can_withdraw) reset_game();
-
-  return can_withdraw;
+  return process_bet(bet_hold, bet_val, user_roll, dealer_roll, db);
 }
 
 function roll_dice(dice_max: number) : number {

@@ -3,7 +3,7 @@ import { user_id } from '../server';
 import { default_bet_data } from './constants';
 import { BetData } from './types';
 
-const sqlz = new sequelize.Sequelize('postgres://[username]:[password]@localhost:5342/bets');
+const sqlz = new sequelize.Sequelize('postgres://karozhu:@localhost:5432/postgres');
 
 export const Bet = sqlz.define('bet', {
   "balance" : {type: sequelize.DataTypes.INTEGER},
@@ -32,32 +32,31 @@ export async function write_to_db(data: BetData) {
 }
 
 export async function get_history_db() {
-  let history: any = [];
   try {
-    history = await Bet.findAll({
+    const history = await Bet.findAll({
       where: {
-        id: user_id
+        user_id: user_id
       }
     });
+    return history;
   } catch (err) {
     console.error("Failed to retrieve database; ", err);
   }
-  return history;
 }
 
 export async function get_latest_bet_db() {
-  const latest_bet = await sqlz.query(
-    `SELECT * FROM bet
-    WHERE user_id=${user_id}
-    ORDER BY timestamp DESC
-    LIMIT 1;
-    `,
-    {
-      mapToModel: true,
-      model: Bet
+  try {
+    const history = await Bet.findAll({
+      where: {
+        user_id: user_id,
+      },
+      order: [["timestamp", "DESC"]],
+      limit: 1
     });
-  //get first item from results list (first argument of value returned from query)
-  return latest_bet;
+    return history
+  } catch (err) {
+    console.error("Failed to retrieve database; ", err);
+  }
 }
 
 export async function reset_game_db() {

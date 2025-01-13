@@ -4,11 +4,11 @@ import * as mongo from 'mongodb';
 import { default_bet_data, initial_balance, session_data_filename } from './constants';
 import { BetData } from './types';
 import { user_id } from '../server';
-import { get_latest_bet_db, get_history_db, reset_game_db } from './database_handler';
+import { write_to_db, get_latest_bet_db, get_history_db, reset_game_db } from './database_handler';
 
 //balance_delta represents value to add to balance
-export function process_bet(balance_delta: number, bet_val: number, user_roll: number, dealer_roll: number) : BetData {
-  const latest_bet = get_latest_bet();
+export async function process_bet(balance_delta: number, bet_val: number, user_roll: number, dealer_roll: number, db?: string) {
+  const latest_bet = await get_latest_bet(db);
   const new_balance : number = latest_bet['balance'] + balance_delta;
   let num_wins : number = latest_bet['num_wins'];
 
@@ -16,7 +16,7 @@ export function process_bet(balance_delta: number, bet_val: number, user_roll: n
     console.log('You went broke ): Resetting...')
     console.log('If my pit boss catches me doing this he\'ll have my kneecaps!');
 
-    reset_game();
+    reset_game(db);
     return default_bet_data;
   } else {
     //if change in balance is positive, user won. negative, user lost.
@@ -35,31 +35,42 @@ export function process_bet(balance_delta: number, bet_val: number, user_roll: n
       "user_id": user_id
     }
 
-    log_to_history(new_bet_data);
+    log_to_history(new_bet_data, db);
     return new_bet_data;
   }
 }
 
 //add new bet to history, each new bet added to the beginning of the json file
-function log_to_history(new_bet: BetData) {
-  const bet_list: BetData[] = [new_bet];
-  let in_list = JSON.parse(fs.readFileSync(session_data_filename, 'utf-8'));
-  in_list.unshift(new_bet);
-  fs.writeFileSync(session_data_filename, JSON.stringify(in_list));
+function log_to_history(new_bet: BetData, db?: string) {
+  if(db == 'db') {
+    write_to_db(new_bet);
+  } else {
+    const bet_list: BetData[] = [new_bet];
+    let in_list = JSON.parse(fs.readFileSync(session_data_filename, 'utf-8'));
+    in_list.unshift(new_bet);
+    fs.writeFileSync(session_data_filename, JSON.stringify(in_list));
+  }
 }
 
-export function get_latest_bet(db?: string) {
+export async function get_latest_bet(db?: string) {
   if(db == 'db') {
-    return get_latest_bet_db();
+    const latest_bet = await get_latest_bet_db();
+    console.log("\n\n");
+    console.log(latest_bet);
+    if(latest_bet != null && latest_bet.length == 0) {
+      return default_bet_data;
+    }
+    return latest_bet;
   } else {
-    const history = get_history();
+    const history = await get_history(db);
     return history.length > 0 ? history[0] : default_bet_data;
   }
 }
 
-export function get_history(db?:string) {
+export async function get_history(db?:string) {
   if(db == 'db') {
-    return get_history_db();
+    const history = await get_history_db();
+    return history;
   } else {
     if(!fs.existsSync(session_data_filename)) {
       reset_game();
@@ -71,14 +82,17 @@ export function get_history(db?:string) {
 }
 
 //boolean to check if user has won before
-export function has_won_before(db?: string) {
+export async function has_won_before(db?: string) {
   if(db == 'db') {
     const force_cast_bet = ((get_latest_bet_db() as unknown) as BetData);
     if(force_cast_bet != null) {
       return force_cast_bet['num_wins'] > 0;
     }
   } else {
-    if(fs.existsSync(session_data_filename)) return get_latest_bet(db)['num_wins'] > 0;
+    if(fs.existsSync(session_data_filename)) {
+      const num_wins = await get_latest_bet(db)
+      return num_wins > 0;
+    }
   }
   return false;
 }
